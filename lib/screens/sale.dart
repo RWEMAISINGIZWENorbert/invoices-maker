@@ -3,6 +3,8 @@ import 'package:invoice/models/products.dart';
 import 'package:invoice/models/cart_item.dart';
 import 'package:invoice/widgets/animated_snackbar.dart';
 import 'package:invoice/widgets/product_item.dart';
+import 'package:invoice/models/invoice.dart';
+import 'package:invoice/screens/invoice_preview.dart';
 
 class Sale extends StatefulWidget {
   const Sale({super.key});
@@ -229,11 +231,63 @@ Future<dynamic> saleCart(
                             },
                           ),
                 ),
-              ],
-            ),
-          );
-        },
-      );
+              
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: cartItems.isEmpty
+                      ? null
+                      : () {
+                          // 1. Transform CartItems to InvoiceItems
+                          final invoiceItems = cartItems
+                              .map((c) => InvoiceItem(
+                                    name: c.product.name,
+                                    quantity: c.quantity.toDouble(),
+                                    price: c.product.price,
+                                  ))
+                              .toList();
+
+                          // 2. Create Invoice
+                          final invoice = Invoice(
+                            id: DateTime.now()
+                                .millisecondsSinceEpoch
+                                .toString()
+                                .substring(9), // Simple ID logic for MVP
+                            date: DateTime.now(),
+                            items: invoiceItems,
+                          );
+
+                          // 3. Navigate to Preview
+                          Navigator.pop(context); // Close cart
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  InvoicePreview(invoice: invoice),
+                            ),
+                          );
+                        },
+                  child: const Text(
+                    'Generate Invoice',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                ),
+              ),
+              ]
+          ),
+        );
+      });
     },
   );
 }
