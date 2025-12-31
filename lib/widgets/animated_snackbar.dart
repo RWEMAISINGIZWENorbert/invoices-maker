@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:iconly/iconly.dart';
-
 void showAnimatedSnackBar(BuildContext context, String message,
     {bool isSuccess = true}) {
   final overlay = Overlay.of(context);
